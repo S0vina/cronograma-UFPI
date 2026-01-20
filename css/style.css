@@ -26,15 +26,29 @@ td:first-child {
 }
 
 td .ocupada {
+  color: white;
+  font-weight: 500;
+  padding: 4px;
+  vertical-align: middle;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2); /* Brilho interno */
 }
 
 td .ocupada:hover {
+  position: relative;
+  z-index: 10px;
+  filter: brightness(1.1);
+  transform: scale(1.1);
 }
 
+/* Muda o estilo dos horarios de 12:00 e 18:00 */
+.divisorDeTurno td {
+  border-top: 2px dashed;
+  border-bottom: 2px dashed;
+}
+
+/* "Table Header" ou cabecalho da tabela */
 .schedule-grid th {
   height: 50px;
   width: 50px;
-}
-
-#grid-body {
 }
