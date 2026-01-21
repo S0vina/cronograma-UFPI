@@ -183,6 +183,24 @@ function apagaMateria(posicao) {
   });
 }
 
+function carregarCursoEscolhido() {
+  const selectedCurso = document.getElementById("curso-select");
+
+  const listaContainer = document.querySelector(".lista-materias");
+
+  listaContainer.innerHTML = "";
+  if (!listaContainer) return; // Segurança caso o container não exista na página
+
+  const cursoAtual = selectedCurso.value;
+
+  if (cursoAtual) {
+    carregaListaMaterias(cursoAtual);
+    console.log("Deu certo");
+  } else {
+    console.log("Deu merda");
+  }
+}
+
 function carregaListaMaterias(curso) {
   const listaContainer = document.querySelector(".lista-materias");
   listaContainer.innerHTML = "";
@@ -194,18 +212,23 @@ function carregaListaMaterias(curso) {
     div.className = "item-materia";
     div.innerHTML = ` 
     <label>
-      <input type="checkbox" data-id="${materia.id}" class="checkbox-materia">
+      <input type="checkbox" data-id="${materia.id}" class="checkbox-materia"
+      onchange="toggleMateria(event)">
       <span>${materia.nome}</span>
       <small>${materia.horario} - ${materia.professor}</small>
     </label>`;
 
     listaContainer.appendChild(div);
+    // No seu loop que cria a lista de matérias:
   });
 }
 
-function toggleMateria() {
+function toggleMateria(event) {
   // Pegar os dados da matéria clicada
-  const idMateria = this.dataset.id;
+  // Aqui nós pegamos o 'relatório' e perguntamos: 'Quem foi que mudou?'
+  const checkboxClicado = event.target;
+
+  const idMateria = event.target.dataset.id;
   const cursoAtual = document.getElementById("curso-select").value;
 
   console.log("Curso selecionado no HTML:", cursoAtual);
@@ -222,8 +245,7 @@ function toggleMateria() {
 
   const posicao = decodificaHorario(info.horario);
 
-  if (this.checked) {
-    const idMateria = this.dataset.id;
+  if (checkboxClicado.checked) {
     if (!coresAtribuidas[info.nome]) {
       coresAtribuidas[info.nome] = corMateriaAtual(indiceCor);
     }
@@ -238,17 +260,20 @@ function toggleMateria() {
 }
 
 // Gera a tabela dos horarios
-
 gerarGrade();
 
-// Carrega a lista de materias
-let curso = "Ciência da Computação";
-carregaListaMaterias(curso);
+// 2. Monitora a mudança do curso
+const seletor = document.getElementById("curso-select");
+seletor.addEventListener("change", carregarCursoEscolhido);
 
-const botoes = document.querySelectorAll(".checkbox-materia");
+// 3. Monitora cliques em checkboxes (mesmo os que ainda não foram criados)
+document
+  .querySelector(".lista-materias")
+  .addEventListener("change", function (event) {
+    // Verifica se o que mudou foi realmente um checkbox de matéria
+    if (event.target.classList.contains("checkbox-materia")) {
+      toggleMateria(event);
+    }
+  });
 
-botoes.forEach((btn) => {
-  btn.addEventListener("change", toggleMateria);
-});
-
-console.log("Sistema de monitoramento de checkboxes iniciado!");
+console.log("Sistema iniciado! Aguardando seleção de curso...");
