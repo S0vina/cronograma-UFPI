@@ -5,7 +5,7 @@ const bancoDados = {
     {
       id: 1,
       nome: "Cálculo Diferencial e Integral I",
-      horario: "24T34",
+      horario: "24T3456",
       professor: "Paulo Alexandre",
     },
     {
@@ -23,13 +23,13 @@ const bancoDados = {
     {
       id: 4,
       nome: "Introdução à Lógica",
-      horario: "35M34",
+      horario: "35M56",
       professor: "Kelson Romulo",
     },
     {
       id: 5,
       nome: "Introdução à Metodologia Científica",
-      horario: "24M56",
+      horario: "24M67",
       professor: "Atila Brandão",
     },
     {
@@ -38,14 +38,38 @@ const bancoDados = {
       horario: "35M56",
       professor: "Rosianni de Oliveira",
     },
+    {
+      id: 7,
+      nome: "Matematica Discreta",
+      horario: "24N12",
+      professor: "Josias",
+    },
   ],
 };
-
+// prettier-ignore
 const turnoHorario = {
-  M: { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 },
+  M: { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5 , 7: 6},
   T: { 1: 6, 2: 7, 3: 8, 4: 9, 5: 10, 6: 11 },
-  N: { 1: 12, 2: 13, 3: 14, 4: 15 },
+  N: { 1: 12, 2: 13, 3: 14, 4: 15 }
 };
+
+const paletaCores = [
+  "#4A90E2",
+  "#a80536",
+  "#F5A623",
+  "#e465e9",
+  "#8B572A",
+  "#7ED321",
+  "#BD10E0",
+  "#9013FE",
+  "#417505",
+  "#F8E71C",
+];
+
+let indiceCor = 0;
+
+// Objeto para guardar as cores das matérias que já estão na grade
+const coresAtribuidas = {};
 
 function gerarGrade() {
   const tbody = document.getElementById("grid-body");
@@ -108,11 +132,11 @@ function decodificaHorario(horario) {
   dias.forEach((dia) => {
     horas.forEach((hora) => {
       let indexX = dia - 1;
-      let indexY = turnoHorario[turno][hora]; // Define com o turno e hora, o numero da linha na tabela
+      let indexY = turnoHorario[turno][parseInt([hora])]; // Define com o turno e hora, o numero da linha na tabela
 
       posicao.push({
-        coluna: indexX,
-        linha: indexY,
+        coluna: indexY,
+        linha: indexX,
       });
     });
   });
@@ -120,19 +144,27 @@ function decodificaHorario(horario) {
   return posicao; // retorna um dict com o x e y da materia
 }
 
-function desenhaMateria(posicao, nome) {
+function desenhaMateria(posicao, nome, cores) {
   posicao.forEach((posicoes) => {
     const id = `cell-${posicoes.coluna}-${posicoes.linha}`;
     const celula = document.getElementById(id);
     if (celula) {
-      celula.style.background = "green";
+      celula.style.background = cores[nome];
       celula.textContent = nome;
+      // Adiciona uma classe geral para saber que está ocupada
+      celula.classList.add("celula-ocupada");
       return true;
     } else {
       console.log("Deu merda");
       return false;
     }
   });
+}
+
+function corMateriaAtual(indice) {
+  cor = paletaCores[indiceCor];
+  indiceCor++;
+  return cor;
 }
 
 function apagaMateria(posicao) {
@@ -144,6 +176,9 @@ function apagaMateria(posicao) {
       celula.style.backgroundColor = "";
       celula.classList.remove("celula-ocupada");
       celula.removeAttribute("data-materia-nome");
+      if (indiceCor > 0) {
+        indiceCor--;
+      }
     }
   });
 }
@@ -179,20 +214,26 @@ function toggleMateria() {
   // Busca a matéria pelo ID, independente da posição no array
   const info = bancoDados[cursoAtual].find((m) => m.id == idMateria);
 
-  const marcados = document.querySelectorAll(".checkbox-materia:checked");
+  if (!cursoAtual || !bancoDados[cursoAtual]) {
+    console.error("Curso não selecionado ou não encontrado no banco de dados!");
+    this.checked = false; // Desmarca o checkbox para evitar erro visual
+    return;
+  }
 
   const posicao = decodificaHorario(info.horario);
 
   if (this.checked) {
     const idMateria = this.dataset.id;
-
-    const sucesso = desenhaMateria(posicao, info.nome);
-
+    if (!coresAtribuidas[info.nome]) {
+      coresAtribuidas[info.nome] = corMateriaAtual(indiceCor);
+    }
+    // Parametro para garantir que o toggle nao fique checkd se o desenho nao for bem sucedido
+    let sucesso = desenhaMateria(posicao, info.nome, coresAtribuidas);
     console.log("Regex da materia carregado:" + info.horario);
   } else {
     apagaMateria(posicao);
   }
-
+  const marcados = document.querySelectorAll(".checkbox-materia:checked");
   console.log("Selecionados agora:", marcados.length);
 }
 
