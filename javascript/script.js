@@ -44,6 +44,12 @@ const bancoDados = {
       horario: "24N12",
       professor: "Josias",
     },
+    {
+      id: 8,
+      nome: "Progamacao Estruturada",
+      horario: "24T56",
+      professor: "Pedrao",
+    },
   ],
 };
 // prettier-ignore
@@ -67,6 +73,10 @@ const paletaCores = [
 ];
 
 let indiceCor = 0;
+
+let celulasOcupadas = {};
+
+let materiasAtivas = []; // Array para guardar os objetos das matérias marcadas
 
 // Objeto para guardar as cores das matérias que já estão na grade
 const coresAtribuidas = {};
@@ -144,19 +154,31 @@ function decodificaHorario(horario) {
   return posicao; // retorna um dict com o x e y da materia
 }
 
-function desenhaMateria(posicao, nome, cores) {
+function desenhaMateria(posicao, nome, cor) {
   posicao.forEach((posicoes) => {
     const id = `cell-${posicoes.coluna}-${posicoes.linha}`;
     const celula = document.getElementById(id);
     if (celula) {
-      celula.style.background = cores[nome];
-      celula.textContent = nome;
-      // Adiciona uma classe geral para saber que está ocupada
-      celula.classList.add("celula-ocupada");
-      return true;
+      const materiaExistente = celulasOcupadas[id];
+      console.log(materiaExistente);
+      if (materiaExistente && materiaExistente !== nome) {
+        exibirConflito(celula, materiaExistente, nome);
+        console.log("cheguei aqui");
+        // } else if (celula.classList.contains("conflito-ativo")) {
+        // return;
+      } else {
+        // Se a célula já estava com conflito mas agora estou sozinho nela
+        // (Isso acontece durante o redesenho após desmarcar uma)
+        celula.classList.remove("conflito-ativo");
+
+        celula.style.backgroundColor = cor;
+        celula.innerHTML = `<span>${nome}</span>`;
+        celula.classList.add("ocupada");
+        celulasOcupadas[id] = nome;
+        console.log(celulasOcupadas[id]);
+      }
     } else {
       console.log("Deu merda");
-      return false;
     }
   });
 }
@@ -176,6 +198,7 @@ function apagaMateria(posicao) {
       celula.style.backgroundColor = "";
       celula.classList.remove("celula-ocupada");
       celula.removeAttribute("data-materia-nome");
+      delete celulasOcupadas[id];
       if (indiceCor > 0) {
         indiceCor--;
       }
@@ -183,21 +206,78 @@ function apagaMateria(posicao) {
   });
 }
 
+function exibirConflito(celula, materiaAntiga, materiaNova) {
+  const celulaConflito = celula;
+
+  celulaConflito.style.background = "red";
+  celulaConflito.style.color = "white";
+  celulaConflito.style.fontWeight = "bold";
+  celulaConflito.style.fontSize = "10px";
+
+  // Adiciona a mensagem de conflito
+  celula.innerHTML = `
+        <div class="conflito-ativo">
+            ⚠️ CONFLITO<br>
+            ${materiaAntiga} + ${materiaNova}
+        </div>
+    `;
+}
+
+function atualizarGrade() {
+  // 1. Primeiro, limpamos o visual do HTML
+  limparGradeVisualmente();
+
+  // 2. Zeramos o nosso controle lógico de ocupação
+  celulasOcupadas = {};
+
+  // 3. Redesenhamos apenas as matérias que estão no array de ativas
+  materiasAtivas.forEach((materia) => {
+    const slots = decodificaHorario(materia.horario);
+
+    // Recuperamos a cor que já tínhamos definido para essa matéria
+    // Se você ainda não tem o objeto coresAtribuidas, podemos gerar na hora:
+    if (!coresAtribuidas[materia.nome]) {
+      coresAtribuidas[materia.nome] = corMateriaAtual(indiceCor);
+    }
+
+    const cor = coresAtribuidas[materia.nome];
+
+    // Chamamos a sua função de desenho original
+    desenhaMateria(slots, materia.nome, cor);
+  });
+}
+
+function limparGradeVisualmente() {
+  // Seleciona todas as células que têm o ID começando com 'cell-'
+  const celulas = document.querySelectorAll('[id^="cell-"]');
+
+  celulas.forEach((celula) => {
+    // 1. Remove estilos inline (background, cores, etc)
+    celula.style.backgroundColor = "";
+    celula.style.color = "";
+    celula.style.fontWeight = "";
+    celula.style.fontSize = "";
+
+    // 2. Remove o conteúdo interno (o HTML do aviso de conflito)
+    celula.innerHTML = "";
+
+    // 3. REMOVE AS CLASSES (Isso é o mais importante!)
+    celula.classList.remove("ocupada", "conflito-ativo");
+  });
+}
+
 function carregarCursoEscolhido() {
   const selectedCurso = document.getElementById("curso-select");
-
   const listaContainer = document.querySelector(".lista-materias");
-
   listaContainer.innerHTML = "";
   if (!listaContainer) return; // Segurança caso o container não exista na página
 
   const cursoAtual = selectedCurso.value;
 
+  resetarTudo();
   if (cursoAtual) {
     carregaListaMaterias(cursoAtual);
     console.log("Deu certo");
-  } else {
-    console.log("Deu merda");
   }
 }
 
@@ -223,40 +303,37 @@ function carregaListaMaterias(curso) {
   });
 }
 
+function resetarTudo() {
+  // 1. Limpa a lista de matérias que o JS estava guardando
+  materiasAtivas = [];
+
+  // 2. Limpa o controle de ocupação (conflitos)
+  celulasOcupadas = {};
+
+  // 3. Limpa todas as cores e nomes da grade visual (HTML)
+  limparGradeVisualmente();
+
+  console.log("Grade e memória resetadas para o novo curso.");
+}
+
 function toggleMateria(event) {
-  // Pegar os dados da matéria clicada
-  // Aqui nós pegamos o 'relatório' e perguntamos: 'Quem foi que mudou?'
-  const checkboxClicado = event.target;
-
-  const idMateria = event.target.dataset.id;
+  const checkbox = event.target;
   const cursoAtual = document.getElementById("curso-select").value;
-
-  console.log("Curso selecionado no HTML:", cursoAtual);
-  console.log("Cursos disponíveis no JS:", Object.keys(bancoDados));
-
-  // Busca a matéria pelo ID, independente da posição no array
+  const idMateria = checkbox.dataset.id;
   const info = bancoDados[cursoAtual].find((m) => m.id == idMateria);
 
-  if (!cursoAtual || !bancoDados[cursoAtual]) {
-    console.error("Curso não selecionado ou não encontrado no banco de dados!");
-    this.checked = false; // Desmarca o checkbox para evitar erro visual
-    return;
-  }
-
-  const posicao = decodificaHorario(info.horario);
-
-  if (checkboxClicado.checked) {
-    if (!coresAtribuidas[info.nome]) {
-      coresAtribuidas[info.nome] = corMateriaAtual(indiceCor);
+  if (checkbox.checked) {
+    // Adiciona a matéria à lista de ativas se não estiver lá
+    if (!materiasAtivas.find((m) => m.id == idMateria)) {
+      materiasAtivas.push(info);
     }
-    // Parametro para garantir que o toggle nao fique checkd se o desenho nao for bem sucedido
-    let sucesso = desenhaMateria(posicao, info.nome, coresAtribuidas);
-    console.log("Regex da materia carregado:" + info.horario);
   } else {
-    apagaMateria(posicao);
+    // Remove a matéria da lista de ativas
+    materiasAtivas = materiasAtivas.filter((m) => m.id != idMateria);
   }
-  const marcados = document.querySelectorAll(".checkbox-materia:checked");
-  console.log("Selecionados agora:", marcados.length);
+
+  // O toque de mágica: redesenha tudo baseado na nova lista
+  atualizarGrade();
 }
 
 // Gera a tabela dos horarios
@@ -265,7 +342,6 @@ gerarGrade();
 // 2. Monitora a mudança do curso
 const seletor = document.getElementById("curso-select");
 seletor.addEventListener("change", carregarCursoEscolhido);
-
 // 3. Monitora cliques em checkboxes (mesmo os que ainda não foram criados)
 document
   .querySelector(".lista-materias")
@@ -275,5 +351,3 @@ document
       toggleMateria(event);
     }
   });
-
-console.log("Sistema iniciado! Aguardando seleção de curso...");

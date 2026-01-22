@@ -52,3 +52,30 @@ td .ocupada:hover {
   height: 50px;
   width: 50px;
 }
+
+.conflito-ativo {
+  font-size: 0.6rem;
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  text-transform: uppercase;
+}
+
+@keyframes piscar {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.conflito-ativo {
+  animation: piscar 910ms infinite;
+}
