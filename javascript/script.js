@@ -185,13 +185,12 @@ function exibirConflito(celula, materiaAntiga, materiaNova) {
 }
 
 function atualizarGrade() {
-  // 1. Primeiro, limpamos o visual do HTML
   limparGradeVisualmente();
 
-  // 2. Zeramos o nosso controle lógico de ocupação
+  // Zera o nosso controle lógico de ocupação
   celulasOcupadas = {};
 
-  // 3. Redesenhamos apenas as matérias que estão no array de ativas
+  // Redesenha apenas as matérias que estão no array de ativas
   materiasAtivas.forEach((materia) => {
     const slots = decodificaHorario(materia.horario);
 
@@ -314,6 +313,9 @@ function resetarTudo() {
   // Limpa todas as cores e nomes da grade visual (HTML)
   limparGradeVisualmente();
 
+  const checkboxes = document.querySelectorAll(".checkbox-materia");
+  checkboxes.forEach((cb) => (cb.checked = false));
+
   console.log("Grade e memória resetadas para o novo curso.");
 }
 
@@ -377,3 +379,11 @@ document
       toggleMateria(event);
     }
   });
+
+const cleanerButton = document.getElementById("cleaner-button");
+if (cleanerButton) {
+  cleanerButton.addEventListener("click", resetarTudo);
+  console.log("Eciste butao");
+} else {
+  console.log("nao existe botao");
+}

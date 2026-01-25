@@ -1,3 +1,14 @@
+.top-bar {
+  display: flex;
+  align-items: center;
+}
+
+.cleaner {
+  background-color: #023e8a;
+  color: #f0f7ff;
+  margin-left: 10px;
+}
+
 .schedule-grid {
   background: white;
   overflow-x: auto;
