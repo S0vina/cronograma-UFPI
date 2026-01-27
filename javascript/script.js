@@ -71,6 +71,46 @@ function gerarGrade() {
   });
 }
 
+function abrirModalCursos() {
+  const modal = document.getElementById("modal-cursos");
+  modal.style.display = "flex";
+  renderizarCursosNoModal(""); // Mostra todos inicialmente
+}
+
+function fecharModalCursos() {
+  document.getElementById("modal-cursos").style.display = "none";
+  // Escuta a busca DENTRO do modal
+  document
+    .getElementById("busca-curso-input")
+    .addEventListener("input", (e) => {
+      renderizarCursosNoModal(e.target.value.toLowerCase());
+    });
+}
+
+function renderizarCursosNoModal(filtro) {
+  const container = document.getElementById("lista-cursos-full");
+  container.innerHTML = "";
+
+  // Pega as chaves do seu banco de dados (os nomes dos cursos)
+  const nomesCursos = Object.keys(bancoDados);
+
+  nomesCursos
+    .filter((nome) => nome.toLowerCase().includes(filtro))
+    .forEach((nome) => {
+      const card = document.createElement("div");
+      card.className = "card-curso";
+      card.innerText = nome;
+      card.onclick = () => selecionarCurso(nome);
+      container.appendChild(card);
+    });
+}
+
+function selecionarCurso(nome) {
+  document.getElementById("curso-atual-nome").innerText = nome;
+  renderizaMaterias(nome);
+  fecharModalCursos();
+}
+
 function decodificaHorario(horario) {
   if (!horario) {
     console.log("Leitura nao foi bem sucedida");
@@ -236,25 +276,23 @@ function carregarCursoEscolhido() {
 
   resetarTudo();
   if (cursoAtual) {
-    carregaListaMaterias(cursoAtual);
+    renderizaMaterias(cursoAtual);
     console.log("Deu certo");
   } else console.log("Deu errado");
 }
 
-function carregaListaMaterias(curso) {
+function renderizaMaterias(materiasParaExibir) {
   const listaContainer = document.querySelector(".lista-materias");
   listaContainer.innerHTML = "";
 
-  const materias = bancoDados[curso];
-
-  if (!materias) {
-    console.log("DEU ERRADO");
+  if (!materiasParaExibir || materiasParaExibir.length === 0) {
+    listaContainer.innerHTML =
+      "<p class='aviso'>Nenhuma matéria encontrada.</p>";
     return;
   }
 
   const materiasPorPeriodo = {};
-
-  materias.forEach((materia) => {
+  materiasParaExibir.forEach((materia) => {
     const p = materia.periodo;
     if (!materiasPorPeriodo[p]) {
       materiasPorPeriodo[p] = [];
@@ -302,6 +340,36 @@ function carregaListaMaterias(curso) {
   });
 }
 
+function renderizarResultadosBusca(materias) {
+  resultadosBusca.innerHTML = "";
+
+  if (materias.length === 0) {
+    resultadosBusca.innerHTML =
+      "<p style='padding:15px;'>Nenhuma matéria encontrada.</p>";
+    return;
+  }
+
+  materias.forEach((m) => {
+    const div = document.createElement("div");
+    div.className = "item-materia item-busca";
+    div.innerHTML = `
+            <label>
+                <input type="checkbox" data-id="${m.id}" ${estaSelecionada(m.id) ? "checked" : ""} onchange="toggleMateria(event)">
+                <div class="materia-info">
+                    <strong>${m.nome}</strong>
+                    <small>P${m.Periodo} - T${m.turma}</small>
+                </div>
+            </label>
+        `;
+    resultadosBusca.appendChild(div);
+  });
+}
+
+// Função auxiliar para manter o checkbox sincronizado com a grade
+function estaSelecionada(id) {
+  return materiasAtivas.some((m) => m.id === id);
+}
+
 function resetarTudo() {
   // Limpa a lista de matérias que o JS estava guardando
   materiasAtivas = [];
@@ -340,17 +408,6 @@ function toggleMateria(event) {
   const info = bancoDados[cursoAtual].find((m) => m.id == idCompleto);
 
   if (checkbox.checked) {
-    // Nao permite selecionar duas turmas da mesma materia
-    //const turmaConflitante = materiasAtivas.find((m) => m.nome === info.nome);
-    /*if (turmaConflitante) {
-      alert(`VOCÊ JÁ SELECIONOU A ${info.nome} (T${turmaConflitante.turma})`);
-      checkbox.checked = false;
-      console.log(turmaConflitante);
-      return;
-    }*/
-
-    // Nao ta funcionando correto, entao tirei a verificao acima
-
     // Adiciona a matéria à lista de ativas se não estiver lá
     if (!materiasAtivas.find((m) => m.id == idCompleto)) {
       materiasAtivas.push(info);
@@ -364,12 +421,38 @@ function toggleMateria(event) {
   atualizarGrade();
 }
 
+// INICIA JUNTO COM O SITE
+
 carregarDadosIniciais();
 
-// Monitora a mudança do curso
-const seletor = document.getElementById("curso-select");
-seletor.addEventListener("change", carregarCursoEscolhido);
-// Monitora cliques em checkboxes (mesmo os que ainda não foram criados)
+const inputBusca = document.getElementById("input-busca");
+const listaPadrao = document.getElementById("lista-padrao");
+const resultadosBusca = document.getElementById("resultados-busca");
+
+inputBusca.addEventListener("input", (e) => {
+  const termo = e.target.value.toLowerCase().trim();
+  const cursoAtual = document.getElementById("curso-select").value;
+
+  if (termo.length > 0) {
+    // Mostrar overlay e esconder lista padrão
+    listaPadrao.style.opacity = "0.3"; // Efeito visual de fundo
+    resultadosBusca.style.display = "block";
+
+    // Filtrar matérias do curso selecionado
+    const filtradas = bancoDados[cursoAtual].filter((m) =>
+      m.nome.toLowerCase().includes(termo),
+    );
+
+    // Renderizar resultados
+    renderizarResultadosBusca(filtradas);
+  } else {
+    // Se apagar a busca, volta ao normal
+    listaPadrao.style.opacity = "1";
+    resultadosBusca.style.display = "none";
+  }
+});
+
+// Monitora cliques em checkboxes
 document
   .querySelector(".lista-materias")
   .addEventListener("change", function (event) {

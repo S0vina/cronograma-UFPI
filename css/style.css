@@ -9,9 +9,77 @@
   margin-left: 10px;
 }
 
-.filtra-materias {
+.modal-sobreposicao {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  z-index: 9999;
   display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.grid-cursos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  overflow-y: auto;
+  margin-top: 20px;
+}
+
+.card-curso {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.2s;
+}
+
+.card-curso:hover {
+  border-color: #004a8d;
+  background: #f0f7ff;
+  transform: translateY(-3px);
+}
+
+.busca-container {
   margin-top: 2px;
+  /*background-color: #023e8a;*/
+  display: flex;
+  justify-content: center;
+}
+
+.busca-container input {
+  display: flex;
+  width: 60%;
+}
+
+.overlay-busca {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white; /* Ou a cor de fundo da sua sidebar */
+  z-index: 10;
+  overflow-y: auto;
+}
+
+/* Estilo para as matérias na busca (pode ser mais compacto) */
+.item-busca {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+/* Estilo para as matérias na busca (pode ser mais compacto) */
+.item-busca {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
 }
 
 .schedule-grid {

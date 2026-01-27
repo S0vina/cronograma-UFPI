@@ -9,18 +9,26 @@
   <body>
     <div class="app-container">
       <header class="top-bar">
-        <select id="curso-select">
-          <option value="">Selecione seu curso...</option>
-          <option value="Ciência da Computação">Ciência da Computação</option>
-          <option value="Arquitetura e Urbanismo">
-            Arquitetura e Urbanismo
-          </option>
-          <option value="Matematica">Matematica</option>
-        </select>
-        <button class="cleaner" id="cleaner-button">Limpar</button>
+        <div class="seletor-curso-gatilho" onclick="abrirModalCursos()">
+          <span id="curso-atual-nome">Selecione seu curso...</span>
+          <i class="seta">▼</i>
+        </div>
       </header>
 
       <div class="main-layout">
+        <div id="modal-cursos" class="modal-sobreposicao" style="display: none">
+          <div class="modal-header">
+            <input
+              type="text"
+              id="busca-curso-input"
+              placeholder="Digite o nome do curso (ex: Engenharia)..."
+              autofocus
+            />
+            <button onclick="fecharModalCursos()">✕</button>
+          </div>
+          <div id="lista-cursos-full" class="grid-cursos"></div>
+        </div>
+
         <aside class="sidebar">
           <div class="busca-container">
             <input
@@ -29,6 +37,18 @@
               placeholder="Pesquisar matéria no curso..."
             />
           </div>
+
+          <div style="position: relative">
+            <div id="lista-padrao" class="lista-materias"></div>
+
+            <div
+              id="resultados-busca"
+              class="overlay-busca"
+              style="display: none"
+            ></div>
+          </div>
+          <button class="cleaner" id="cleaner-button">Limpar</button>
+
           <div class="lista-materias"></div>
         </aside>
 
