@@ -1,6 +1,8 @@
 // Lista de materias de computacao para teste de desenho das materias
 let bancoDados = {};
 
+let cursoSelecionadoAtual = ""; // Variável global para o curso selecionado
+
 const turnoHorario = {
   M: { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6 },
   T: { 1: 6, 2: 7, 3: 8, 4: 9, 5: 10, 6: 11 },
@@ -30,7 +32,7 @@ let materiasAtivas = []; // Array para guardar os objetos das matérias marcadas
 const coresAtribuidas = {};
 
 function gerarGrade() {
-  const tbody = document.getElementById("grid-body");
+  const tbody = document.getElementById("corpo-grade");
   const horas = [
     "06:00",
     "07:00",
@@ -71,20 +73,86 @@ function gerarGrade() {
   });
 }
 
-function abrirModalCursos() {
-  const modal = document.getElementById("modal-cursos");
-  modal.style.display = "flex";
-  renderizarCursosNoModal(""); // Mostra todos inicialmente
+// Ao escolher um modulo
+function mudarModulo(moduloId) {
+  document
+    .querySelectorAll(".modulo-content")
+    .forEach((el) => (el.style.display = "none"));
+
+  // Desativa todos os botoes
+  document
+    .querySelectorAll(".nav-item")
+    .forEach((b) => b.classList.remove("active"));
+
+  // Detecta qual botao foi selecionado e carrega sua funcao
+  if (moduloId === "cronograma") {
+    abrirModuloCronograma();
+  } else if (moduloId === "servicos") {
+    abrirModuloServicos();
+  }
 }
 
-function fecharModalCursos() {
-  document.getElementById("modal-cursos").style.display = "none";
-  // Escuta a busca DENTRO do modal
+// Quando o botao cronograma for selecionado
+function abrirModuloCronograma(moduloId = "cronograma") {
+  document.getElementById(`sidebar-${moduloId}`).style.display = "block";
+  document.getElementById(`view-${moduloId}`).style.display = "block";
+
+  gerarGrade();
+
+  // Grade, seletor de curso, filtro de materias e botao limpar ja estao na div do modulo-cronograma
+  // Entao sao exibidos automaticamente
+
+  console.log("Módulo de Cronograma montado.");
+}
+
+function abrirModalCursos() {
   document
     .getElementById("busca-curso-input")
     .addEventListener("input", (e) => {
-      renderizarCursosNoModal(e.target.value.toLowerCase());
+      const termoDeBusca = e.target.value.toLowerCase().trim();
+
+      renderizarCursosNoModal(termoDeBusca);
     });
+
+  console.log("Executando abertura visual do modal...");
+  const modal = document.getElementById("modal-cursos");
+
+  if (modal) {
+    // Força o display flex e remove qualquer impedimento
+    modal.style.setProperty("display", "flex", "important");
+    modal.style.opacity = "1";
+    modal.style.visibility = "visible";
+
+    // Foca no campo de busca para facilitar a vida do aluno
+    const inputBuscaModal = document.getElementById("busca-curso-input");
+    if (inputBuscaModal) setTimeout(() => inputBuscaModal.focus(), 100);
+
+    // Chama a função que popula os cursos (garanta que ela exista!)
+    renderizarCursosNoModal("");
+  } else {
+    console.error("ERRO: Elemento #modal-cursos não existe no HTML.");
+  }
+}
+
+function fecharModalCursos() {
+  const modal = document.getElementById("modal-cursos");
+  const inputBuscaModal = document.getElementById("busca-curso-input");
+
+  if (modal) {
+    // 1. Esconde o modal (usando o método mais forte)
+    modal.style.setProperty("display", "none", "important");
+
+    // 2. Limpa o campo de busca para a próxima vez
+    if (inputBuscaModal) {
+      inputBuscaModal.value = "";
+    }
+
+    // 3. Opcional: Resetar a lista de cursos para mostrar todos
+    // Isso evita que o usuário abra o modal e veja apenas um filtro antigo
+    renderizarCursosNoModal("");
+
+    console.log("Modal fechado e limpo.");
+  }
 }
 
 function renderizarCursosNoModal(filtro) {
@@ -102,13 +170,23 @@ function renderizarCursosNoModal(filtro) {
       card.innerText = nome;
       card.onclick = () => selecionarCurso(nome);
       container.appendChild(card);
+      console.log("estou chegando aqui?");
     });
 }
 
 function selecionarCurso(nome) {
+  cursoSelecionadoAtual = nome; // Atualiza a variável que a busca usa!
+
   document.getElementById("curso-atual-nome").innerText = nome;
   renderizaMaterias(nome);
   fecharModalCursos();
+}
+
+function abrirModuloServicos(moduloId = "servicos") {
+  document.getElementById(`sidebar-${moduloId}`).style.display = "block";
+  document.getElementById(`view-${moduloId}`).style.display = "block";
+
+  console.log("Módulo de Serviços montado.");
 }
 
 function decodificaHorario(horario) {
@@ -281,18 +359,24 @@ function carregarCursoEscolhido() {
   } else console.log("Deu errado");
 }
 
-function renderizaMaterias(materiasParaExibir) {
+function renderizaMaterias(curso) {
   const listaContainer = document.querySelector(".lista-materias");
   listaContainer.innerHTML = "";
 
-  if (!materiasParaExibir || materiasParaExibir.length === 0) {
+  if (!listaContainer) {
+    console.log("Nao carregou lista-container");
+    return;
+  }
+
+  const materias = bancoDados[curso];
+  if (!materias || materias.length === 0) {
     listaContainer.innerHTML =
       "<p class='aviso'>Nenhuma matéria encontrada.</p>";
     return;
   }
 
   const materiasPorPeriodo = {};
-  materiasParaExibir.forEach((materia) => {
+  materias.forEach((materia) => {
     const p = materia.periodo;
     if (!materiasPorPeriodo[p]) {
       materiasPorPeriodo[p] = [];
@@ -392,9 +476,6 @@ async function carregarDadosIniciais() {
     const resposta = await fetch("../assets/cursos/cursos.json");
     bancoDados = await resposta.json();
     console.log("Banco de dados da UFPI carregado!");
-
-    // Só depois de carregar os dados
-    gerarGrade();
   } catch (erro) {
     console.error("Erro ao carregar o JSON:", erro);
   }
@@ -404,7 +485,7 @@ function toggleMateria(event) {
   const checkbox = event.target;
   const idCompleto = checkbox.dataset.id;
 
-  const cursoAtual = document.getElementById("curso-select").value;
+  const cursoAtual = document.getElementById("curso-atual-nome").textContent;
   const info = bancoDados[cursoAtual].find((m) => m.id == idCompleto);
 
   if (checkbox.checked) {
@@ -431,22 +512,21 @@ const resultadosBusca = document.getElementById("resultados-busca");
 
 inputBusca.addEventListener("input", (e) => {
   const termo = e.target.value.toLowerCase().trim();
-  const cursoAtual = document.getElementById("curso-select").value;
+
+  // Se não tiver curso selecionado, não busca nada
+  if (!cursoSelecionadoAtual) return;
 
   if (termo.length > 0) {
-    // Mostrar overlay e esconder lista padrão
-    listaPadrao.style.opacity = "0.3"; // Efeito visual de fundo
+    listaPadrao.style.opacity = "0.3";
     resultadosBusca.style.display = "block";
 
-    // Filtrar matérias do curso selecionado
-    const filtradas = bancoDados[cursoAtual].filter((m) =>
+    // Usa a variável global em vez do getElementById
+    const filtradas = bancoDados[cursoSelecionadoAtual].filter((m) =>
       m.nome.toLowerCase().includes(termo),
     );
 
-    // Renderizar resultados
     renderizarResultadosBusca(filtradas);
   } else {
-    // Se apagar a busca, volta ao normal
     listaPadrao.style.opacity = "1";
     resultadosBusca.style.display = "none";
   }
@@ -469,3 +549,17 @@ if (cleanerButton) {
 } else {
   console.log("nao existe botao");
 }
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    fecharModalCursos();
+  }
+});
+
+const modal = document.getElementById("modal-cursos");
+modal.addEventListener("click", (event) => {
+  // Se o clique foi no fundo (modal-sobreposicao) e não dentro da caixa branca (modal-header)
+  if (event.target === modal) {
+    fecharModalCursos();
+  }
+});

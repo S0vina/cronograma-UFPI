@@ -15,34 +15,113 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: white;
-  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.6); /* Efeito de vidro escuro */
+  backdrop-filter: blur(5px); /* Desfoque no fundo do site */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.modal-header {
+  background: #ffffff;
+  width: 100%;
+  max-width: 800px;
+  max-height: 85vh; /* Não deixa o modal ultrapassar a altura da tela */
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  padding: 20px;
+  overflow: hidden; /* Garante que as bordas arredondadas cortem o conteúdo */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: modalEntrada 0.3s ease-out;
+}
+
+.modal-header-top {
+  padding: 15px;
+  display: flex;
+  border-bottom: 1px solid #eee; /* Linha sutil separando a busca dos cards */
+  align-items: center;
+}
+
+@keyframes modalEntrada {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header button {
+  background: #f0f0f0;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background 0.2s;
+}
+
+.modal-header button:hover {
+  background: #e0e0e0;
+  color: #d32f2f;
+}
+
+#busca-curso-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#busca-curso-input:focus {
+  border-color: #004a8d; /* Azul padrão UFPI */
+}
+
+.modal-sobreposicao.active {
+  opacity: 0.8;
+  visibility: visible;
 }
 
 .grid-cursos {
+  padding: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
-  overflow-y: auto;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  overflow-y: auto; /* Scroll apenas aqui dentro */
 }
 
+/* Estilo de cada card de curso */
 .card-curso {
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
   cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  transition: 0.2s;
+  min-height: 60px;
 }
 
 .card-curso:hover {
+  background: #004a8d;
+  color: white;
   border-color: #004a8d;
-  background: #f0f7ff;
-  transform: translateY(-3px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 74, 141, 0.2);
 }
 
 .busca-container {
