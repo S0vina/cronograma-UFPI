@@ -74,24 +74,19 @@
 }
 
 #curso-atual-nome {
+  background-color: #004a8d;
+  color: #e0e0e0;
+  font-weight: bold;
+  border: 2px solid #666;
   width: 200px;
   cursor: pointer;
-  border: solid 1px #004a8d;
 }
 
 .seletor-curso-gatilho {
   width: 201px;
   height: 19px;
-  margin-top: 1px;
+  margin-top: 4px;
   transition: all 0.2s ease;
-}
-
-.seletor-curso-gatilho :hover {
-  border: #666;
-  color: #e0e0e0;
-  background-color: #004a8d;
-  transform: translateY(-8px);
-  box-shadow: 0 4px 12px rgba(0, 74, 141, 0.2);
 }
 
 #busca-curso-input {
@@ -356,4 +351,78 @@ td .ocupada:hover {
 
 .periodo-header.fechado .seta-icon {
   transform: rotate(-90deg);
+}
+
+.aviso {
+  grid-column: 1 / -1; /* Faz o aviso ocupar todas as colunas do grid */
+  padding: 20px;
+  margin: 20px 0;
+
+  background-color: #f50000; /* Vermelho bem claro de fundo */
+  color: #ecd9d9; /* Vermelho escuro para o texto */
+  border: 2px dashed #ffffff; /* Borda tracejada para dar ideia de "vazio" */
+  border-radius: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+
+  text-align: center;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: surgeAviso 0.4s ease;
+}
+
+/* Adicionando um ícone via CSS (Opcional, mas fica ótimo) */
+.aviso::before {
+  content: "🔍"; /* Ícone de lupa */
+  font-size: 2rem;
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+/* Animação para o aviso não aparecer do nada */
+@keyframes surgeAviso {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reportar-texto {
+  grid-column: 1 / -1; /* Faz o aviso ocupar todas as colunas do grid */
+  padding: 20px;
+  margin: 20px 0;
+
+  background-color: #004a8d; /* Vermelho bem claro de fundo */
+  color: #ecd9d9; /* Vermelho escuro para o texto */
+  border: 2px solid #000000; /* Borda tracejada para dar ideia de "vazio" */
+  border-radius: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+
+  text-align: center;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: surgeAviso 1s ease;
+}
+
+.link-reportar {
+  color: #000000;
+  font-weight: bold;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.link-reportar :hover {
+  color: #e0e0e0;
+  border-bottom-color: #002d56;
+  padding-bottom: 2px;
 }

@@ -163,7 +163,7 @@ function renderizarCursosNoModal(filtro) {
   const nomesCursos = Object.keys(bancoDados);
 
   nomesCursos
-    .filter((nome) => nome.toLowerCase().includes(filtro))
+    .filter((nome) => nome.toLowerCase().startsWith(filtro))
     .forEach((nome) => {
       const card = document.createElement("div");
       card.className = "card-curso";
@@ -370,8 +370,17 @@ function renderizaMaterias(curso) {
 
   const materias = bancoDados[curso];
   if (!materias || materias.length === 0) {
-    listaContainer.innerHTML =
-      "<p class='aviso'>Nenhuma matéria encontrada.</p>";
+    listaContainer.innerHTML = `<div class="aviso-container">
+      <p class="aviso">Aviso! Nenhuma matéria encontrada.</p>
+      <p class="reportar-texto">
+        Acha que isso é um erro? 
+        <a href="mailto:hillan1236@gmail.com?subject=Erro no Curso: ${curso}" class="link-reportar">
+        ➡️  Reportar ao desenvolvedor📧 ⬅️
+        </a>
+      </p>
+    </div>
+  `;
+
     return;
   }
 
