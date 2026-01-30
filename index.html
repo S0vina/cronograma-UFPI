@@ -8,6 +8,7 @@
   </head>
   <body>
     <!-- TELA SOBREPOSTA PARA SELECAO DE CURSOS -->
+    <!-- INICIA INVISIVEL -->
     <div id="modal-cursos" class="modal-sobreposicao" style="display: none">
       <div class="modal-header">
         <div class="modal-header-top">
@@ -39,22 +40,25 @@
             <h3>Minha Grade</h3>
             <p>Organize seus horários de aula para 2026.</p>
           </div>
-          <!-- ICON PARA IR DIRETO PARA O SIGAA-->
+          <!-- LINK PARA IR DIRETO PARA O SIGAA-->
           <a
             href="https://sigaa.ufpi.br"
             target="_blank"
             class="card-dashboard"
           >
+            <!-- ICON DA FEATURE SIGAA -->
             <div class="icon">🎓</div>
             <h3>SIGAA</h3>
             <p>Notas e frequências.</p>
           </a>
+
           <!-- ICON PARA CALENDARIO ACADEMICO -->
           <div class="card-dashboard" onclick="mudaModulo('servicos')">
             <div class="icon">📌</div>
             <h3>Calendário</h3>
             <p>Prazos e feriados.</p>
           </div>
+
           <!-- ICON PARA FEATURES DO RU -->
           <div class="card-dashboard">
             <div class="icon">🍱</div>
@@ -68,14 +72,13 @@
       <!-- BOTAO HOME PARA VOLTAR PARA A TELA INICIAL -->
       <div id="view-cronograma" class="modulo-content" style="display: none">
         <div class="toolbar-grade">
-          <button class="btn-home" onclick="mudaModulo('inicio')">
-            🏠 Início
-          </button>
+          <button class="btn-home" onclick="mudaModulo('inicio')">🏠</button>
 
           <!-- BOTAO PARA ABRIR A TELA DE SOBREPOSTA DE SELECAO DE CURSOS-->
           <button onclick="abrirModalCursos()" class="btn-selecionar">
             Escolha seu curso
           </button>
+          <button onclick="resetarTudo()" class="cleaner-btn">Limpar</button>
         </div>
 
         <div id="sidebar-materias"></div>
@@ -111,16 +114,9 @@
       </div>
 
       <!-- DIV PARA AMOSTRAGEM DE SERVICOS-->
-      <div id="view-servicos" class="modulo-content" style="display: none">
-        <button class="btn-home" onclick="mudaModulo('inicio')">
-          🏠 Início
-        </button>
-        <div class="servicos-lista">
-          <h3>Links Oficiais</h3>
-          <a href="https://sigaa.ufpi.br" target="_blank" class="card-servico"
-            >SIGAA</a
-          >
-          <a href="#" class="card-servico">Calendário Acadêmico 2026</a>
+      <div id="view-calendario" class="modulo-content" style="display: none">
+        <div class="toolbar-grade">
+          <button class="btn-home" onclick="mudaModulo('inicio')">🏠</button>
         </div>
       </div>
     </main>

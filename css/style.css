@@ -12,7 +12,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: white;
   padding: 20px;
   border-radius: 20px;
   border: 2px solid #004a8d;
@@ -74,7 +73,7 @@
 }
 
 /* Botão Flutuante de Home dentro das outras telas */
-.btn-home-floating {
+.btn-home {
   position: fixed;
   bottom: 30px;
   right: 30px;
@@ -95,7 +94,7 @@
   align-items: center;
 }
 
-.cleaner {
+.cleaner-btn {
   background-color: #023e8a;
   color: #f0f7ff;
   margin-left: 10px;
@@ -298,45 +297,11 @@
   accent-color: #004a8d; /* Cor oficial da UFPI */
 }
 
-.aviso-sem-materias {
-  margin: 5px;
-  margin-bottom: 8px;
-  text-align: center;
-  background-color: #d32f2f;
-  color: #e9ecef;
-  border: 2px dashed white;
-  animation: surgeAviso 0.4s ease;
-}
-
-.overlay-busca {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: white; /* Ou a cor de fundo da sua sidebar */
-  z-index: 10;
-  overflow-y: auto;
-}
-
 /* Estilo para as matérias na busca (pode ser mais compacto) */
 .item-busca {
   padding: 10px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
-}
-
-/* Estilo para as matérias na busca (pode ser mais compacto) */
-.item-busca {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  cursor: pointer;
-}
-
-.schedule-grid {
-  background: white;
-  overflow-x: auto;
-  border-radius: 8px;
 }
 
 table {
@@ -349,11 +314,11 @@ table {
 
 /* Cabeçalho mais fino */
 th {
-  background-color: #004a8d;
+  background-color: #cab434;
   color: white;
   padding: 8px 4px;
   font-weight: 600;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #000000;
 }
 
 /* Diminuindo a altura das células de horário */
@@ -372,15 +337,6 @@ th:first-child {
   background-color: #f8fafc;
   font-weight: bold;
   color: #64748b;
-}
-
-.celula-materia {
-  font-size: 0.75rem;
-  padding: 2px;
-  border-radius: 4px;
-  line-height: 1.1;
-  display: block;
-  height: 100%;
 }
 
 /* Muda o estilo dos horarios de 12:00 e 18:00 */
@@ -435,26 +391,9 @@ th:first-child {
   cursor: pointer;
 }
 
-.materia-detalhes {
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-}
-
-.materia-detalhes .nome {
-  font-weight: bold;
-  font-size: 0.85rem;
-  color: #333;
-}
-
-.materia-detalhes .horario {
-  font-size: 0.75rem;
-  color: #666;
-}
-
 .periodo-header {
   color: #f3eeee;
-  background-color: #3b4877;
+  background-color: #004a8d;
   padding: 3px 5px;
   margin-top: 3px;
   margin-bottom: 3px;
@@ -467,8 +406,7 @@ th:first-child {
 }
 
 .periodo-header:hover {
-  color: #f3eeee;
-  background-color: #219612;
+  text-decoration: underline;
 }
 
 /* Contêiner das matérias */
@@ -528,7 +466,7 @@ th:first-child {
 }
 
 /* Adicionando um ícone via CSS (Opcional, mas fica ótimo) */
-.aviso::before {
+.aviso:before {
   content: "🔍"; /* Ícone de lupa */
   font-size: 2rem;
   filter: grayscale(1);

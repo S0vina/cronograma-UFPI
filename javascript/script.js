@@ -1,27 +1,25 @@
-// Lista de materias de computacao para teste de desenho das materias
-let bancoDados = {};
-
-let listaServicos = {};
+let bancoDados = {}; // Variavel que guarda o cursos.json
 
 let cursoAtualGlobal = ""; // Variável global para o curso selecionado
 
-let indiceCor = 0;
+let indiceCor = 0; // Variavel para manipular o vetor de cores das materias
 
-let celulasOcupadas = {};
+let celulasOcupadas = {}; // Mapeia as td's ocupadas por materias desenhadas
 
 let materiasAtivas = []; // Array para guardar os objetos das matérias marcadas
 
 let materiasSelecionadas = new Set(); // Armazena os IDs das matérias marcadas
 
-// Objeto para guardar as cores das matérias que já estão na grade
-const coresAtribuidas = {};
+const coresAtribuidas = {}; // Objeto para guardar as cores das matérias que já estão na grade
 
+// Dict que permite a decodificao dos turnos das materias
 const turnoHorario = {
   M: { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 7: 6 },
   T: { 1: 6, 2: 7, 3: 8, 4: 9, 5: 10, 6: 11 },
   N: { 1: 12, 2: 13, 3: 14, 4: 15 },
 };
 
+// Implementar diferentes palhetas? (Feature de trocar o tema do site)
 const paletaCores = [
   "#4A90E2",
   "#a80536",
@@ -35,6 +33,7 @@ const paletaCores = [
   "#F8E71C",
 ];
 
+// Gera as td's sobre as th's ja previamente construidas no html
 function gerarGrade() {
   const corpoGrade = document.getElementById("corpo-grade");
   if (!corpoGrade) return;
@@ -68,11 +67,10 @@ function gerarGrade() {
 
     // Coluna da hora
     tr.innerHTML = `<td>${hora}</td>`;
-    if (hora == "12:00" || hora == "18:00") {
+    if (hora == "06:00" || hora == "12:00" || hora == "18:00") {
       tr.classList.add("divisorDeTurno");
     }
 
-    // Criar 7 colunas para os dias (Dom-Sáb)
     for (let indexColuna = 0; indexColuna < 7; indexColuna++) {
       const td = document.createElement("td");
       td.id = `cell-${indexLinha}-${indexColuna}`;
@@ -83,7 +81,7 @@ function gerarGrade() {
   });
 }
 
-// Ao escolher um modulo
+// Troca de modulo ao clicar em um card no dashbord
 function mudaModulo(moduloId) {
   document
     .querySelectorAll(".modulo-content")
@@ -93,15 +91,9 @@ function mudaModulo(moduloId) {
 
   const view = document.getElementById(`view-${moduloId}`);
   if (view) view.style.display = "block";
-
-  if (moduloId === "cronograma") {
-    console.log("Renderizando grade...");
-    gerarGrade(); // Desenha as linhas
-    atualizarGrade(); // Pinta as matérias
-  }
 }
 
-// Quando o botao cronograma for selecionado
+// Funcao para construir a tela do cronograma
 function abrirModuloCronograma(moduloId = "cronograma") {
   // Garante que a sidebar de matérias também apareça
   const sidebarCronograma = document.getElementById("sidebar-cronograma");
@@ -116,12 +108,14 @@ function abrirModuloCronograma(moduloId = "cronograma") {
   console.log("Módulo de Cronograma montado.");
 }
 
+// Funcao que abri a tela flutuante de selecao de cursos
 function abrirModalCursos() {
   document
     .getElementById("busca-curso-input")
     .addEventListener("input", (e) => {
       const termoDeBusca = e.target.value.toLowerCase().trim();
 
+      // Funcao que filtra e exibe os cursos a partir do input
       renderizarCursosNoModal(termoDeBusca);
     });
 
@@ -134,32 +128,31 @@ function abrirModalCursos() {
     modal.style.opacity = "1";
     modal.style.visibility = "visible";
 
-    // Foca no campo de busca para facilitar a vida do aluno
+    // Foca no campo de busca
     const inputBuscaModal = document.getElementById("busca-curso-input");
     if (inputBuscaModal) setTimeout(() => inputBuscaModal.focus(), 100);
 
-    // Chama a função que popula os cursos (garanta que ela exista!)
+    // Chama a função que popula os cursos
     renderizarCursosNoModal("");
   } else {
     console.error("ERRO: Elemento #modal-cursos não existe no HTML.");
   }
 }
 
+// Funcao para fechar a tela flutuante de selecao de cursos
 function fecharModalCursos() {
   const modal = document.getElementById("modal-cursos");
   const inputBuscaModal = document.getElementById("busca-curso-input");
 
   if (modal) {
-    // 1. Esconde o modal (usando o método mais forte)
+    // Esconde a tela flutuante
     modal.style.setProperty("display", "none", "important");
 
-    // 2. Limpa o campo de busca para a próxima vez
+    // Mantem o input limpo para proxima busca de curso
     if (inputBuscaModal) {
       inputBuscaModal.value = "";
     }
-
-    // 3. Opcional: Resetar a lista de cursos para mostrar todos
-    // Isso evita que o usuário abra o modal e veja apenas um filtro antigo
+    // Evita que o modal inicie com o antigo filtro
     renderizarCursosNoModal("");
 
     console.log("Modal fechado e limpo.");
@@ -170,9 +163,10 @@ function renderizarCursosNoModal(filtro) {
   const container = document.getElementById("lista-cursos-full");
   container.innerHTML = "";
 
-  // Pega as chaves do seu banco de dados (os nomes dos cursos)
+  // Busca os nomes dos cursos (chaves no dict)
   const nomesCursos = Object.keys(bancoDados);
 
+  // Logica de filtragem e construcao do card
   nomesCursos
     .filter((nome) => nome.toLowerCase().startsWith(filtro))
     .forEach((nome) => {
@@ -184,12 +178,13 @@ function renderizarCursosNoModal(filtro) {
     });
 }
 
+// Funcao que excecuta onclick no card do curso
 function selecionarCurso(nome) {
   console.log("Curso atual: " + nome);
 
-  resetarTudo();
-
   cursoAtualGlobal = nome; // Atualiza a variável global de curso atual
+
+  console.log("cursoAtualGlobal definido para:", cursoAtualGlobal);
 
   fecharModalCursos();
 
@@ -198,6 +193,23 @@ function selecionarCurso(nome) {
   renderizaMaterias(nome);
 }
 
+// Funcao que carrega o curso ao ser escolhido na tela flutuante
+function carregarCursoEscolhido() {
+  const selectedCurso = document.getElementById("curso-select");
+  const listaContainer = document.querySelector(".lista-materias");
+  listaContainer.innerHTML = "";
+  if (!listaContainer) return; // Segurança caso o container não exista na página
+
+  const cursoAtual = selectedCurso.value;
+
+  resetarTudo();
+  if (cursoAtual) {
+    renderizaMaterias(cursoAtual);
+    console.log("Deu certo");
+  } else console.log("Deu errado");
+}
+
+// Funcao que traduz o horario do curso para futuro desenho na celula correta
 function decodificaHorario(horario) {
   if (!horario) {
     console.log("Leitura nao foi bem sucedida");
@@ -205,6 +217,7 @@ function decodificaHorario(horario) {
   }
 
   // Se o horário tiver espaço, quebra em partes e processa cada uma
+  // Para materias com mais de um turno
   const partes = horario.trim().split(/\s+/);
   let todosHorarios = [];
 
@@ -239,20 +252,9 @@ function decodificaHorario(horario) {
 
   return todosHorarios; // retorna um dict com o x e y da materia
 }
-/*
-function gerenciarSelecao(checkbox, idMateria) {
-    if (checkbox.checked) {
-        materiasSelecionadas.add(idMateria);
-        // Aqui você chamaria sua função original de adicionar na grade
-        desenhaMateria(idMateria); 
-    } else {
-        materiasSelecionadas.delete(idMateria);
-        // Aqui você chamaria sua função original de remover da grade
-        removerDaGrade(idMateria);
-    }
-}
-    */
 
+// Desenha a materia na celula da grade ao ser selecionada
+// No caso de conflito, tambem identifica a ocorrencia
 function desenhaMateria(posicao, nomeMateria, cor, turma) {
   const codigoMateria = `${nomeMateria} (T-${turma})`;
 
@@ -275,17 +277,19 @@ function desenhaMateria(posicao, nomeMateria, cor, turma) {
         celulasOcupadas[id] = codigoMateria;
       }
     } else {
-      console.log("Deu merda");
+      console.log("Nao foi possivel realizar o desenho");
     }
   });
 }
 
+// Funcao para manusear o vetor de cores
 function corMateriaAtual(indice) {
   cor = paletaCores[indice];
   indiceCor++;
   return cor;
 }
 
+// Funcao que apaga o desenho da materia ao ser de-selecionada
 function apagaMateria(posicao) {
   const codigoMateria = `${nomeMateria} (T${turma})`;
 
@@ -306,6 +310,7 @@ function apagaMateria(posicao) {
   });
 }
 
+// Funcao que desenha o css de materias conflitantes
 function exibirConflito(celula, materiaAntiga, materiaNova) {
   const celulaConflito = celula;
 
@@ -323,29 +328,31 @@ function exibirConflito(celula, materiaAntiga, materiaNova) {
     `;
 }
 
+// Funcao para atualizacao completa da grade
+// Evita manipulacao excessivamente precisa das celulas
 function atualizarGrade() {
   limparGradeVisualmente();
 
-  // Zera o nosso controle lógico de ocupação
   celulasOcupadas = {};
 
+  if (!materiasAtivas) console.log("Nao tem materias ativas");
   // Redesenha apenas as matérias que estão no array de ativas
   materiasAtivas.forEach((materia) => {
     const slots = decodificaHorario(materia.horario);
 
-    // Recuperamos a cor que já tínhamos definido para essa matéria
-    // Se você ainda não tem o objeto coresAtribuidas, podemos gerar na hora:
     if (!coresAtribuidas[materia.nome]) {
       coresAtribuidas[materia.nome] = corMateriaAtual(indiceCor);
     }
 
     const cor = coresAtribuidas[materia.nome];
 
-    // Chamamos a sua função de desenho original
     desenhaMateria(slots, materia.nome, cor, materia.turma);
+    console.log("Cheguei aqui?");
   });
 }
 
+// Funcao para remover todo e qualquer desenho na grade
+// Funcao auxiliar da resetarTudo
 function limparGradeVisualmente() {
   // Seleciona todas as células que têm o ID começando com 'cell-'
   const celulas = document.querySelectorAll('[id^="cell-"]');
@@ -365,21 +372,50 @@ function limparGradeVisualmente() {
   });
 }
 
-function carregarCursoEscolhido() {
-  const selectedCurso = document.getElementById("curso-select");
-  const listaContainer = document.querySelector(".lista-materias");
-  listaContainer.innerHTML = "";
-  if (!listaContainer) return; // Segurança caso o container não exista na página
-
-  const cursoAtual = selectedCurso.value;
-
-  resetarTudo();
-  if (cursoAtual) {
-    renderizaMaterias(cursoAtual);
-    console.log("Deu certo");
-  } else console.log("Deu errado");
+// Função auxiliar para manter o checkbox sincronizado com a grade
+function estaSelecionada(id) {
+  return materiasAtivas.some((m) => m.id === id);
 }
 
+// Funcao que limpa os marcados dos checkbox
+function resetarEstadoMaterias() {
+  materiasSelecionadas.clear(); // Limpa o Set de IDs
+
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+  checkboxes.forEach((cb) => {
+    cb.checked = false;
+  });
+
+  atualizarGrade();
+
+  console.log("Memória e visual resetados com sucesso.");
+}
+
+// Funcao que reinicia quase toda parte de cronograma
+function resetarTudo() {
+  materiasSelecionadas.clear(); // Limpa o Set de IDs
+
+  // Limpa a lista de matérias que o JS estava guardando
+  materiasAtivas = [];
+
+  // Reseta a variavel controle das cores
+  indiceCor = 0;
+
+  // Limpa o controle de ocupação (conflitos)
+  celulasOcupadas = {};
+
+  resetarEstadoMaterias();
+
+  // Limpa todas as cores e nomes da grade visual (HTML)
+  limparGradeVisualmente();
+
+  const checkboxes = document.querySelectorAll(".checkbox-materia");
+  checkboxes.forEach((cb) => (cb.checked = false));
+
+  console.log("Grade e memória resetadas para o novo curso.");
+}
+
+// Funcao que carrega as materias logo acima da grade
 function renderizaMaterias(curso) {
   const listaContainer = document.getElementById("sidebar-materias");
 
@@ -460,6 +496,7 @@ function renderizaMaterias(curso) {
   });
 }
 
+// Funcao que apresenta os resultados filtrados de materias a partir do input
 function renderizarResultadosBusca(materias) {
   const resultadosBusca = document.getElementById(
     "container-resultado-busca-materias",
@@ -497,33 +534,7 @@ function renderizarResultadosBusca(materias) {
   });
 }
 
-// Função auxiliar para manter o checkbox sincronizado com a grade
-function estaSelecionada(id) {
-  return materiasAtivas.some((m) => m.id === id);
-}
-
-function resetarTudo() {
-  // Limpa a lista de matérias que o JS estava guardando
-  materiasAtivas = [];
-  // Limpa a variavel do curso atual
-  cursoAtualGlobal = "";
-
-  // Reseta a variavel controle das cores
-  indiceCor = 0;
-
-  // Limpa o controle de ocupação (conflitos)
-  celulasOcupadas = {};
-
-  // Limpa todas as cores e nomes da grade visual (HTML)
-  limparGradeVisualmente();
-
-  const checkboxes = document.querySelectorAll(".checkbox-materia");
-  checkboxes.forEach((cb) => (cb.checked = false));
-
-  console.log("Grade e memória resetadas para o novo curso.");
-}
-
-// Função para buscar os dados
+// Função para buscar os dados de outros arquivos ao abrir o site
 async function carregaDadosIniciais() {
   try {
     const respostaCursos = await fetch("../assets/cursos/cursos.json");
@@ -532,37 +543,42 @@ async function carregaDadosIniciais() {
   } catch (erro) {
     console.error("Erro ao carregar o JSON:", erro);
   }
-
-  try {
-    const respostaServicos = await fetch("../assets/servicos/servicos.json");
-    listaServicos = await respostaServicos.json();
-    console.log("Lista de servicos carregada");
-  } catch (erro) {
-    console.erro("Erro ao carregar o JSON:", erro);
-  }
 }
 
+// Funcao que monitora as acoes feitas nos checkbox
 function toggleMateria(id, estaMarcado) {
-  const todasAsMateriasDoCurso = bancoDados[cursoAtualGlobal] || [];
-  // Encontra o objeto completo da matéria pelo ID
-  const materiaObjeto = todasAsMateriasDoCurso.find((m) => m.id === id);
+  console.log(`Tentando ${estaMarcado ? "adicionar" : "remover"} ID:`, id);
+  console.log("Curso Atual:", cursoAtualGlobal);
+
+  // 1. Pega a lista do curso
+  const todasAsMaterias = bancoDados[cursoAtualGlobal] || [];
+
+  // 2. Procura a matéria (Usando == para evitar erro de String vs Number)
+  const materiaObjeto = todasAsMaterias.find((m) => m.id == id);
 
   if (estaMarcado) {
-    materiasSelecionadas.add(id);
+    if (!materiaObjeto) {
+      console.error(
+        "Erro: Objeto da matéria não encontrado no bancoDados para o ID:",
+        id,
+      );
+      return;
+    }
 
-    // Evita duplicatas no array de desenho
-    if (!materiasAtivas.find((m) => m.id === id) && materiaObjeto) {
+    materiasSelecionadas.add(id.toString());
+
+    // Evita duplicatas conferindo o ID
+    const jaExiste = materiasAtivas.some((m) => m.id == id);
+    if (!jaExiste) {
       materiasAtivas.push(materiaObjeto);
     }
   } else {
-    materiasSelecionadas.delete(id);
-    // Filtra comparando o ID diretamente (m.id)
-    materiasAtivas = materiasAtivas.filter((m) => m.id !== id);
+    materiasSelecionadas.delete(id.toString());
+    materiasAtivas = materiasAtivas.filter((m) => m.id != id);
   }
 
-  console.log("Matérias ativas para desenho:", materiasAtivas);
+  console.log("Estado atual de materiasAtivas:", materiasAtivas);
 
-  // Agora a grade tem os objetos com .horario e .dia para trabalhar
   atualizarGrade();
 }
 
@@ -574,6 +590,8 @@ document.addEventListener("DOMContentLoaded", () => {
   mudaModulo("inicio");
 
   resetarTudo();
+
+  // Gera grade mas mantem oculta
   gerarGrade();
 
   console.log("Portal UFPI 2026 inicializado na Home.");
