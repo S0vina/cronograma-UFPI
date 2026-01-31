@@ -23,7 +23,6 @@
       "periodo": 1
     }
   ],
-  "Ciência da Contabilidade": [],
   "Ciência da Computação": [
     {
       "id": "CCN032-T01",
@@ -96,6 +95,10 @@
       "periodo": 2
     }
   ],
-  "Matática": [],
+  "Ciências Contábeis": [],
+  "Engenharia Elétrica": [],
+  "Física": [],
+  "Matemática": [],
+  "Odontologia": [],
   "Zootecnia": []
 }
