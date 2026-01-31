@@ -1,7 +1,7 @@
 # 🎓 Portal do Aluno UFPI 2026 - Planejador de Grade
 
 ![Versão](https://img.shields.io/badge/versão-1.0.0-blue)
-![Status](https://img.shields.io/badge/status-MVP-orange)
+![Status](https://img.shields.io/badge/status-WIP-orange)
 
 Um sistema interativo, iniciado com fins de aprendizado, desenvolvido para auxiliar os alunos da Universidade Federal do Piauí (UFPI) a organizarem suas grades horárias de forma visual, rápida e intuitiva.
 
